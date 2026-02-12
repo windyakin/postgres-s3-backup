@@ -8,6 +8,12 @@ set -euo pipefail
 : "${POSTGRES_DB:?POSTGRES_DB is required}"
 : "${S3_BUCKET:?S3_BUCKET is required}"
 : "${S3_PREFIX:=backup}"
+DRY_RUN=false
+for arg in "$@"; do
+  case "${arg}" in
+    --dry-run) DRY_RUN=true ;;
+  esac
+done
 
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 DUMP_FILE="/tmp/${POSTGRES_DB}_${TIMESTAMP}.sql.gz"
@@ -31,6 +37,14 @@ S3_PATH="s3://${S3_BUCKET}/${S3_PREFIX}/${POSTGRES_DB}_${TIMESTAMP}.sql.gz"
 AWS_OPTS=()
 if [[ -n "${AWS_ENDPOINT_URL:-}" ]]; then
   AWS_OPTS+=(--endpoint-url "${AWS_ENDPOINT_URL}")
+fi
+
+if [[ "${DRY_RUN}" == "true" ]]; then
+  echo "[dry-run] Would upload to ${S3_PATH}"
+  echo "[dry-run] Skipping upload and removing dump file."
+  rm -f "${DUMP_FILE}"
+  echo "[dry-run] Done."
+  exit 0
 fi
 
 echo "Uploading to ${S3_PATH}..."
