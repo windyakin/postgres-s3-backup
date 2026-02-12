@@ -28,9 +28,14 @@ echo "Dump completed: ${DUMP_FILE} ($(du -h "${DUMP_FILE}" | cut -f1))"
 
 S3_PATH="s3://${S3_BUCKET}/${S3_PREFIX}/${POSTGRES_DB}_${TIMESTAMP}.sql.gz"
 
+AWS_OPTS=()
+if [[ -n "${AWS_ENDPOINT_URL:-}" ]]; then
+  AWS_OPTS+=(--endpoint-url "${AWS_ENDPOINT_URL}")
+fi
+
 echo "Uploading to ${S3_PATH}..."
 
-aws s3 cp "${DUMP_FILE}" "${S3_PATH}"
+aws s3 cp "${AWS_OPTS[@]}" "${DUMP_FILE}" "${S3_PATH}"
 
 echo "Upload completed."
 
