@@ -1,6 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
+: "${PROCESS_PRIORITY:=19}"
+: "${IONICE_CLASS:=3}"
 : "${POSTGRES_HOST:?POSTGRES_HOST is required}"
 : "${POSTGRES_PORT:=5432}"
 : "${POSTGRES_USER:?POSTGRES_USER is required}"
@@ -22,6 +24,8 @@ export PGPASSWORD="${POSTGRES_PASSWORD}"
 
 echo "Starting backup of database '${POSTGRES_DB}' from ${POSTGRES_HOST}:${POSTGRES_PORT}..."
 
+nice -n "${PROCESS_PRIORITY}" \
+ionice -c "${IONICE_CLASS}" \
 pg_dump \
   -h "${POSTGRES_HOST}" \
   -p "${POSTGRES_PORT}" \
