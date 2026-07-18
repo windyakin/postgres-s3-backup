@@ -44,6 +44,62 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest --dry-run
 ```
 
+## リストア
+
+### バックアップ一覧の確認
+
+```bash
+docker run --rm \
+  -e POSTGRES_HOST=db.example.com \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=mydb \
+  -e S3_BUCKET=my-backup-bucket \
+  --entrypoint restore.sh \
+  ghcr.io/windyakin/postgres-s3-backup:latest --list
+```
+
+### 最新のバックアップからリストア
+
+```bash
+docker run --rm \
+  -e POSTGRES_HOST=db.example.com \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=mydb \
+  -e S3_BUCKET=my-backup-bucket \
+  --entrypoint restore.sh \
+  ghcr.io/windyakin/postgres-s3-backup:latest --latest
+```
+
+### 特定のバックアップファイルからリストア
+
+```bash
+docker run --rm \
+  -e POSTGRES_HOST=db.example.com \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=mydb \
+  -e S3_BUCKET=my-backup-bucket \
+  --entrypoint restore.sh \
+  ghcr.io/windyakin/postgres-s3-backup:latest mydb_20250101_030000.sql.gz
+```
+
+### Dry-run (リストア)
+
+`--dry-run` を指定すると、S3 からのダウンロードは実行されますがデータベースへのリストアはスキップされます。
+
+```bash
+docker run --rm \
+  -e POSTGRES_HOST=db.example.com \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=secret \
+  -e POSTGRES_DB=mydb \
+  -e S3_BUCKET=my-backup-bucket \
+  --entrypoint restore.sh \
+  ghcr.io/windyakin/postgres-s3-backup:latest --latest --dry-run
+```
+
 ## 環境変数
 
 | 変数 | 必須 | デフォルト | 説明 |
