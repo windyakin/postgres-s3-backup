@@ -1,16 +1,22 @@
 # postgres-s3-backup
 
-PostgreSQL のデータベースを `pg_dump` でバックアップし、S3 (または S3 互換ストレージ) にアップロードする Docker イメージです。
+**[English](#english)** | **[日本語](#日本語)**
 
-## Docker イメージ
+---
+
+## English
+
+A Docker image that backs up PostgreSQL databases using `pg_dump` and uploads them to S3 (or S3-compatible storage).
+
+### Docker Image
 
 ```
 ghcr.io/windyakin/postgres-s3-backup:latest
 ```
 
-`linux/amd64` と `linux/arm64` に対応しています。
+Supports `linux/amd64` and `linux/arm64`.
 
-## 使い方
+### Usage
 
 ```bash
 docker run --rm \
@@ -22,17 +28,17 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest
 ```
 
-### 複数データベースのバックアップ
+#### Backing Up Multiple Databases
 
-`POSTGRES_DB` にカンマ区切りで複数のデータベースを指定できます。指定した順に逐次バックアップされます。
+You can specify multiple databases in `POSTGRES_DB` separated by commas. They will be backed up sequentially in the specified order.
 
 ```bash
 -e POSTGRES_DB=db1,db2,db3
 ```
 
-### Dry-run
+#### Dry-run
 
-`--dry-run` を指定すると、ダンプは実行されますが S3 へのアップロードはスキップされます。
+With `--dry-run`, the dump will be executed but the upload to S3 will be skipped.
 
 ```bash
 docker run --rm \
@@ -44,9 +50,9 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest --dry-run
 ```
 
-## リストア
+### Restore
 
-### バックアップ一覧の確認
+#### List Backups
 
 ```bash
 docker run --rm \
@@ -59,7 +65,7 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest --list
 ```
 
-### 最新のバックアップからリストア
+#### Restore from Latest Backup
 
 ```bash
 docker run --rm \
@@ -72,7 +78,7 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest --latest
 ```
 
-### 特定のバックアップファイルからリストア
+#### Restore from a Specific Backup File
 
 ```bash
 docker run --rm \
@@ -85,9 +91,9 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest mydb_20250101_030000.sql.gz
 ```
 
-### Dry-run (リストア)
+#### Dry-run (Restore)
 
-`--dry-run` を指定すると、S3 からのダウンロードは実行されますがデータベースへのリストアはスキップされます。
+With `--dry-run`, the download from S3 will be executed but the restore to the database will be skipped.
 
 ```bash
 docker run --rm \
@@ -100,31 +106,31 @@ docker run --rm \
   ghcr.io/windyakin/postgres-s3-backup:latest --latest --dry-run
 ```
 
-## 環境変数
+### Environment Variables
 
-| 変数 | 必須 | デフォルト | 説明 |
-|------|------|-----------|------|
-| `POSTGRES_HOST` | Yes | - | PostgreSQL ホスト |
-| `POSTGRES_PORT` | No | `5432` | PostgreSQL ポート |
-| `POSTGRES_USER` | Yes | - | PostgreSQL ユーザー |
-| `POSTGRES_PASSWORD` | Yes | - | PostgreSQL パスワード |
-| `POSTGRES_DB` | Yes | - | バックアップ対象のデータベース名 (カンマ区切りで複数指定可) |
-| `S3_BUCKET` | Yes | - | アップロード先の S3 バケット名 |
-| `S3_PREFIX` | No | `backup` | S3 オブジェクトキーのプレフィックス |
-| `AWS_ENDPOINT_URL` | No | - | S3 互換 API のエンドポイント URL (MinIO, Cloudflare R2 など) |
-| `AWS_ACCESS_KEY_ID` | No | - | AWS アクセスキー (IAM ロール使用時は不要) |
-| `AWS_SECRET_ACCESS_KEY` | No | - | AWS シークレットキー (IAM ロール使用時は不要) |
-| `AWS_DEFAULT_REGION` | No | - | AWS リージョン |
-| `PROCESS_PRIORITY` | No | `19` | `nice` の優先度 (0-19, 大きいほど低優先) |
-| `IONICE_CLASS` | No | `3` | `ionice` のクラス (3=idle) |
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `POSTGRES_HOST` | Yes | - | PostgreSQL host |
+| `POSTGRES_PORT` | No | `5432` | PostgreSQL port |
+| `POSTGRES_USER` | Yes | - | PostgreSQL user |
+| `POSTGRES_PASSWORD` | Yes | - | PostgreSQL password |
+| `POSTGRES_DB` | Yes | - | Database name(s) to back up (comma-separated for multiple) |
+| `S3_BUCKET` | Yes | - | Destination S3 bucket name |
+| `S3_PREFIX` | No | `backup` | Prefix for S3 object keys |
+| `AWS_ENDPOINT_URL` | No | - | Endpoint URL for S3-compatible APIs (MinIO, Cloudflare R2, etc.) |
+| `AWS_ACCESS_KEY_ID` | No | - | AWS access key (not required when using IAM roles) |
+| `AWS_SECRET_ACCESS_KEY` | No | - | AWS secret key (not required when using IAM roles) |
+| `AWS_DEFAULT_REGION` | No | - | AWS region |
+| `PROCESS_PRIORITY` | No | `19` | `nice` priority (0-19, higher means lower priority) |
+| `IONICE_CLASS` | No | `3` | `ionice` class (3=idle) |
 
-## S3 上のファイル構成
+### File Structure on S3
 
 ```
 s3://{S3_BUCKET}/{S3_PREFIX}/{POSTGRES_DB}_{YYYYMMDD_HHMMSS}.sql.gz
 ```
 
-## Kubernetes CronJob での使用例
+### Kubernetes CronJob Example
 
 ```yaml
 apiVersion: batch/v1
